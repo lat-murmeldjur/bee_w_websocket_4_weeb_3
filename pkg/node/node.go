@@ -142,6 +142,7 @@ type Options struct {
 	DBOpenFilesLimit              uint64
 	DBWriteBufferSize             uint64
 	EnableStorageIncentives       bool
+	WSAddr                        string
 	EnableWS                      bool
 	FullNodeMode                  bool
 	Logger                        log.Logger
@@ -640,6 +641,7 @@ func NewBee(
 	p2ps, err := libp2p.New(ctx, signer, networkID, swarmAddress, addr, addressbook, stateStore, lightNodes, logger, tracer, libp2p.Options{
 		PrivateKey:      libp2pPrivateKey,
 		NATAddr:         o.NATAddr,
+		WSAddr:          o.WSAddr,
 		EnableWS:        o.EnableWS,
 		WelcomeMessage:  o.WelcomeMessage,
 		FullNode:        o.FullNodeMode,

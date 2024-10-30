@@ -127,6 +127,7 @@ type Options struct {
 	LightNodeLimit   int
 	WelcomeMessage   string
 	Nonce            []byte
+	WSAddr           string
 	ValidateOverlay  bool
 	hostFactory      func(...libp2p.Option) (host.Host, error)
 	HeadersRWTimeout time.Duration
@@ -155,17 +156,13 @@ func New(ctx context.Context, signer beecrypto.Signer, networkID uint64, overlay
 
 	var listenAddrs []string
 	if ip4Addr != "" {
-		listenAddrs = append(listenAddrs, fmt.Sprintf("/ip4/%s/tcp/%s", ip4Addr, port))
-		if o.EnableWS {
-			listenAddrs = append(listenAddrs, fmt.Sprintf("/ip4/%s/tcp/%s/ws", ip4Addr, port))
-		}
+		// listenAddrs = append(listenAddrs, fmt.Sprintf("/ip4/%s/tcp/%s", ip4Addr, port))
+		listenAddrs = append(listenAddrs, fmt.Sprintf("/ip4/%s/tcp/%s/tls/ws/", ip4Addr, o.WSAddr))
 	}
 
 	if ip6Addr != "" {
 		listenAddrs = append(listenAddrs, fmt.Sprintf("/ip6/%s/tcp/%s", ip6Addr, port))
-		if o.EnableWS {
-			listenAddrs = append(listenAddrs, fmt.Sprintf("/ip6/%s/tcp/%s/ws", ip6Addr, port))
-		}
+		listenAddrs = append(listenAddrs, fmt.Sprintf("/ip6/%s/tcp/%s/tls/ws/", ip6Addr, o.WSAddr))
 	}
 
 	security := libp2p.DefaultSecurity
@@ -242,11 +239,8 @@ func New(ctx context.Context, signer beecrypto.Signer, networkID uint64, overlay
 	}
 
 	transports := []libp2p.Option{
-		libp2p.Transport(tcp.NewTCPTransport, tcp.DisableReuseport()),
-	}
-
-	if o.EnableWS {
-		transports = append(transports, libp2p.Transport(ws.New))
+//		libp2p.Transport(tcp.NewTCPTransport),
+		libp2p.Transport(ws.New),
 	}
 
 	opts = append(opts, transports...)
