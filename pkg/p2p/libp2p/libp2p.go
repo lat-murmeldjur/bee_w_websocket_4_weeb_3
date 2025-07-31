@@ -47,7 +47,7 @@ import (
 	lp2pswarm "github.com/libp2p/go-libp2p/p2p/net/swarm"
 	libp2pping "github.com/libp2p/go-libp2p/p2p/protocol/ping"
 	// "github.com/libp2p/go-libp2p/p2p/transport/tcp"
-	ws "github.com/libp2p/go-libp2p/p2p/transport/websocket"
+	webrtc "github.com/libp2p/go-libp2p/p2p/transport/webrtc"
 
 	ma "github.com/multiformats/go-multiaddr"
 	"github.com/multiformats/go-multistream"
@@ -157,12 +157,14 @@ func New(ctx context.Context, signer beecrypto.Signer, networkID uint64, overlay
 	var listenAddrs []string
 	if ip4Addr != "" {
 		// listenAddrs = append(listenAddrs, fmt.Sprintf("/ip4/%s/tcp/%s", ip4Addr, port))
-		listenAddrs = append(listenAddrs, fmt.Sprintf("/ip4/%s/tcp/%s/ws/", ip4Addr, o.WSAddr))
+		//listenAddrs = append(listenAddrs, fmt.Sprintf("/ip4/%s/tcp/%s/ws/", ip4Addr, o.WSAddr))
+		listenAddrs = append(listenAddrs, fmt.Sprintf("/ip4/%s/udp/%s/webrtc-direct", ip4Addr, o.WSAddr))
 	}
 
 	if ip6Addr != "" {
 		// listenAddrs = append(listenAddrs, fmt.Sprintf("/ip6/%s/tcp/%s", ip6Addr, port))
-		listenAddrs = append(listenAddrs, fmt.Sprintf("/ip6/%s/tcp/%s/ws/", ip6Addr, o.WSAddr))
+		// listenAddrs = append(listenAddrs, fmt.Sprintf("/ip6/%s/tcp/%s/ws/", ip6Addr, o.WSAddr))
+		listenAddrs = append(listenAddrs, fmt.Sprintf("/ip4/%s/udp/%s/webrtc-direct", ip6Addr, o.WSAddr))
 	}
 
 	security := libp2p.DefaultSecurity
@@ -240,7 +242,10 @@ func New(ctx context.Context, signer beecrypto.Signer, networkID uint64, overlay
 
 	transports := []libp2p.Option{
 //		libp2p.Transport(tcp.NewTCPTransport),
-		libp2p.Transport(ws.New),
+//		libp2p.Transport(ws.New),
+		libp2p.Transport(webrtc.New),
+
+
 	}
 
 	opts = append(opts, transports...)
