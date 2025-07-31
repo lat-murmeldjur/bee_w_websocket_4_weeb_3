@@ -164,7 +164,7 @@ func New(ctx context.Context, signer beecrypto.Signer, networkID uint64, overlay
 	if ip6Addr != "" {
 		// listenAddrs = append(listenAddrs, fmt.Sprintf("/ip6/%s/tcp/%s", ip6Addr, port))
 		// listenAddrs = append(listenAddrs, fmt.Sprintf("/ip6/%s/tcp/%s/ws/", ip6Addr, o.WSAddr))
-		listenAddrs = append(listenAddrs, fmt.Sprintf("/ip4/%s/udp/%s/webrtc-direct", ip6Addr, o.WSAddr))
+		listenAddrs = append(listenAddrs, fmt.Sprintf("/ip6/%s/udp/%s/webrtc-direct", ip6Addr, o.WSAddr))
 	}
 
 	security := libp2p.DefaultSecurity
