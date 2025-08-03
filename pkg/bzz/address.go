@@ -29,6 +29,7 @@ var ErrInvalidAddress = errors.New("invalid address")
 // Signature is used to verify the `Overlay/Underlay` pair, as it is based on `underlay|networkID`, signed with the public key of Overlay address
 type Address struct {
 	Underlay        ma.Multiaddr
+	WebRTCUnderlays []ma.Multiaddr
 	Overlay         swarm.Address
 	Signature       []byte
 	Nonce           []byte
@@ -53,15 +54,18 @@ func NewAddress(signer crypto.Signer, underlay ma.Multiaddr, overlay swarm.Addre
 		return nil, err
 	}
 
+	var rtcUnderlays []ma.Multiaddr
+
 	return &Address{
-		Underlay:  underlay,
-		Overlay:   overlay,
-		Signature: signature,
-		Nonce:     nonce,
+		Underlay:        underlay,
+		WebRTCUnderlays: rtcUnderlays,
+		Overlay:         overlay,
+		Signature:       signature,
+		Nonce:           nonce,
 	}, nil
 }
 
-func ParseAddress(underlay, overlay, signature, nonce []byte, validateOverlay bool, networkID uint64) (*Address, error) {
+func ParseAddress(underlay, overlay, signature, nonce []byte, webRTCUnderlayBytes [][]byte, validateOverlay bool, networkID uint64) (*Address, error) {
 	recoveredPK, err := crypto.Recover(signature, generateSignData(underlay, overlay, networkID))
 	if err != nil {
 		return nil, ErrInvalidAddress
@@ -82,6 +86,15 @@ func ParseAddress(underlay, overlay, signature, nonce []byte, validateOverlay bo
 		return nil, ErrInvalidAddress
 	}
 
+	var rtcAddrs []ma.Multiaddr
+
+	for _, addrbytes := range webRTCUnderlayBytes {
+		rtcUnderlay, err := ma.NewMultiaddrBytes(addrbytes)
+		if err == nil {
+			rtcAddrs = append(rtcAddrs, rtcUnderlay)
+		}
+	}
+
 	ethAddress, err := crypto.NewEthereumAddress(*recoveredPK)
 	if err != nil {
 		return nil, fmt.Errorf("extract blockchain address: %w: %w", err, ErrInvalidAddress)
@@ -89,6 +102,7 @@ func ParseAddress(underlay, overlay, signature, nonce []byte, validateOverlay bo
 
 	return &Address{
 		Underlay:        multiUnderlay,
+		WebRTCUnderlays: rtcAddrs,
 		Overlay:         swarm.NewAddress(overlay),
 		Signature:       signature,
 		Nonce:           nonce,

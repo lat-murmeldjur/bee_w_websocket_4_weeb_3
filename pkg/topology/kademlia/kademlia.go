@@ -1141,8 +1141,7 @@ func (k *Kad) Pick(peer p2p.Peer) bool {
 	k.metrics.PickCallsFalse.Inc()
 	return false
 }
-
-func (k *Kad) binPeers(bin uint8, reachable bool) (peers []swarm.Address) {
+func (k *Kad) binPeers(bin uint8, _ bool) (peers []swarm.Address) {
 	_ = k.EachConnectedPeerRev(func(p swarm.Address, po uint8) (bool, bool, error) {
 		if po == bin {
 			peers = append(peers, p)
@@ -1154,7 +1153,7 @@ func (k *Kad) binPeers(bin uint8, reachable bool) (peers []swarm.Address) {
 		}
 
 		return false, true, nil
-	}, topology.Select{Reachable: reachable})
+	}, topology.Select{})
 
 	return
 }

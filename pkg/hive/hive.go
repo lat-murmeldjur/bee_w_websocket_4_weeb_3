@@ -190,11 +190,22 @@ func (s *Service) sendPeers(ctx context.Context, peer swarm.Address, peers []swa
 			// continue // Don't advertise private CIDRs to the public network.
 		}
 
+		var webRTCUnderlaysBytes [][]byte
+
+		for _, a := range addr.WebRTCUnderlays {
+			addr0, err := a.MarshalBinary()
+			if err == nil {
+				webRTCUnderlaysBytes = append(webRTCUnderlaysBytes, addr0)
+			}
+
+		}
+
 		peersRequest.Peers = append(peersRequest.Peers, &pb.BzzAddress{
-			Overlay:   addr.Overlay.Bytes(),
-			Underlay:  addr.Underlay.Bytes(),
-			Signature: addr.Signature,
-			Nonce:     addr.Nonce,
+			Overlay:      addr.Overlay.Bytes(),
+			Underlay:     addr.Underlay.Bytes(),
+			Signature:    addr.Signature,
+			Nonce:        addr.Nonce,
+			RTCUnderlays: webRTCUnderlaysBytes,
 		})
 	}
 
@@ -301,22 +312,33 @@ func (s *Service) checkAndAddPeers(ctx context.Context, peers pb.Peers) {
 
 			start := time.Now()
 
+			var webRTCUnderlays []ma.Multiaddr
+
+			for _, ab := range newPeer.RTCUnderlays {
+				rtcUnderlay, err := ma.NewMultiaddrBytes(ab)
+				if err == nil {
+					webRTCUnderlays = append(webRTCUnderlays, rtcUnderlay)
+				}
+
+			}
+
 			// check if the underlay is usable by doing a raw ping using libp2p
 			if _, err := s.streamer.Ping(ctx, multiUnderlay); err != nil {
 				s.metrics.PingFailureTime.Observe(time.Since(start).Seconds())
 				s.metrics.UnreachablePeers.Inc()
 				s.logger.Debug("unreachable peer underlay", "peer_address", hex.EncodeToString(newPeer.Overlay), "underlay", multiUnderlay)
-				return
+				// return
 			}
 			s.metrics.PingTime.Observe(time.Since(start).Seconds())
 
 			s.metrics.ReachablePeers.Inc()
 
 			bzzAddress := bzz.Address{
-				Overlay:   swarm.NewAddress(newPeer.Overlay),
-				Underlay:  multiUnderlay,
-				Signature: newPeer.Signature,
-				Nonce:     newPeer.Nonce,
+				Overlay:         swarm.NewAddress(newPeer.Overlay),
+				Underlay:        multiUnderlay,
+				Signature:       newPeer.Signature,
+				Nonce:           newPeer.Nonce,
+				WebRTCUnderlays: webRTCUnderlays,
 			}
 
 			err := s.addressBook.Put(bzzAddress.Overlay, bzzAddress)
