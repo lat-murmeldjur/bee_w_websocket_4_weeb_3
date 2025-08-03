@@ -37,10 +37,11 @@ type Address struct {
 }
 
 type addressJSON struct {
-	Overlay   string `json:"overlay"`
-	Underlay  string `json:"underlay"`
-	Signature string `json:"signature"`
-	Nonce     string `json:"transaction"`
+	Overlay      string   `json:"overlay"`
+	Underlay     string   `json:"underlay"`
+	Signature    string   `json:"signature"`
+	Nonce        string   `json:"transaction"`
+	RTCUnderlays []string `json:"rtc_addresses"`
 }
 
 func NewAddress(signer crypto.Signer, underlay ma.Multiaddr, overlay swarm.Address, networkID uint64, nonce []byte) (*Address, error) {
@@ -91,6 +92,8 @@ func ParseAddress(underlay, overlay, signature, nonce []byte, webRTCUnderlayByte
 	for _, addrbytes := range webRTCUnderlayBytes {
 		rtcUnderlay, err := ma.NewMultiaddrBytes(addrbytes)
 		if err == nil {
+
+			fmt.Println("\n\n\n\n ### 3 # 0 ### %s", rtcUnderlay)
 			rtcAddrs = append(rtcAddrs, rtcUnderlay)
 		}
 	}
@@ -135,11 +138,19 @@ func multiaddrEqual(a, b ma.Multiaddr) bool {
 }
 
 func (a *Address) MarshalJSON() ([]byte, error) {
+
+	var rtcUnderlays []string
+
+	for _, a := range a.WebRTCUnderlays {
+		rtcUnderlays = append(rtcUnderlays, a.String())
+	}
+
 	return json.Marshal(&addressJSON{
-		Overlay:   a.Overlay.String(),
-		Underlay:  a.Underlay.String(),
-		Signature: base64.StdEncoding.EncodeToString(a.Signature),
-		Nonce:     common.Bytes2Hex(a.Nonce),
+		Overlay:      a.Overlay.String(),
+		Underlay:     a.Underlay.String(),
+		Signature:    base64.StdEncoding.EncodeToString(a.Signature),
+		Nonce:        common.Bytes2Hex(a.Nonce),
+		RTCUnderlays: rtcUnderlays,
 	})
 }
 
@@ -161,6 +172,17 @@ func (a *Address) UnmarshalJSON(b []byte) error {
 	if err != nil {
 		return err
 	}
+
+	var rtcUnderlays []ma.Multiaddr
+
+	for _, addrString := range v.RTCUnderlays {
+		maddr, err := ma.NewMultiaddr(addrString)
+		if err == nil {
+			rtcUnderlays = append(rtcUnderlays, maddr)
+		}
+	}
+
+	a.WebRTCUnderlays = rtcUnderlays
 
 	a.Underlay = m
 	a.Signature, err = base64.StdEncoding.DecodeString(v.Signature)

@@ -192,12 +192,11 @@ func (s *Service) sendPeers(ctx context.Context, peer swarm.Address, peers []swa
 
 		var webRTCUnderlaysBytes [][]byte
 
-		for _, a := range addr.WebRTCUnderlays {
-			addr0, err := a.MarshalBinary()
-			if err == nil {
-				webRTCUnderlaysBytes = append(webRTCUnderlaysBytes, addr0)
-			}
+		for _, addr0 := range addr.WebRTCUnderlays {
 
+			fmt.Println("\n\n ####### %s", addr0)
+
+			webRTCUnderlaysBytes = append(webRTCUnderlaysBytes, addr0.Bytes())
 		}
 
 		peersRequest.Peers = append(peersRequest.Peers, &pb.BzzAddress{
