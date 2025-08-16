@@ -92,8 +92,6 @@ func ParseAddress(underlay, overlay, signature, nonce []byte, webRTCUnderlayByte
 	for _, addrbytes := range webRTCUnderlayBytes {
 		rtcUnderlay, err := ma.NewMultiaddrBytes(addrbytes)
 		if err == nil {
-
-			fmt.Println("\n\n\n\n ### 3 # 0 ### %s", rtcUnderlay)
 			rtcAddrs = append(rtcAddrs, rtcUnderlay)
 		}
 	}

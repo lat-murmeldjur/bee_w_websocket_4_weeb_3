@@ -208,6 +208,7 @@ func NewBee(
 	session accesscontrol.Session,
 	o *Options,
 ) (b *Bee, err error) {
+
 	tracer, tracerCloser, err := tracing.NewTracer(&tracing.Options{
 		Enabled:     o.TracingEnabled,
 		Endpoint:    o.TracingEndpoint,

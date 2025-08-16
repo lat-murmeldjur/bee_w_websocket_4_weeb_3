@@ -194,8 +194,6 @@ func (s *Service) Handshake(ctx context.Context, stream p2p.Stream, peerMultiadd
 		return nil, err
 	}
 
-	fmt.Println("\n\n ### 3 # 2 ### %s", s.webRTCListenAddrs)
-
 	// Synced read:
 	welcomeMessage := s.GetWelcomeMessage()
 	msg := &pb.Ack{
@@ -272,8 +270,6 @@ func (s *Service) Handle(ctx context.Context, stream p2p.Stream, remoteMultiaddr
 	}
 
 	welcomeMessage := s.GetWelcomeMessage()
-
-	fmt.Println("\n\n ### 3 # 3 ### %s", s.webRTCListenAddrs)
 
 	if err := w.WriteMsgWithContext(ctx, &pb.SynAck{
 		Syn: &pb.Syn{

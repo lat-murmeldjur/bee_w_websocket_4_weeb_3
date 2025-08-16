@@ -59,8 +59,9 @@ require (
 )
 
 require (
+	github.com/filecoin-project/go-clock v0.1.0 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
-	github.com/libp2p/go-yamux/v5 v5.0.1 // indirect
+	github.com/libp2p/go-yamux/v5 v5.1.0 // indirect
 	github.com/nxadm/tail v1.4.8 // indirect
 	github.com/pion/datachannel v1.5.10 // indirect
 	github.com/pion/dtls/v2 v2.2.12 // indirect
@@ -132,7 +133,7 @@ require (
 	github.com/koron/go-ssdp v0.0.6 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/libp2p/go-buffer-pool v0.1.0 // indirect
-	github.com/libp2p/go-flow-metrics v0.2.0 // indirect
+	github.com/libp2p/go-flow-metrics v0.3.0 // indirect
 	github.com/libp2p/go-libp2p-asn-util v0.4.1 // indirect
 	github.com/libp2p/go-msgio v0.3.0 // indirect
 	github.com/libp2p/go-netroute v0.2.2 // indirect
